@@ -7,6 +7,8 @@ import path from "node:path";
 const client = redis.createClient(process.env.REDIS_URL);
 const setAsync = promisify(client.set).bind(client);
 const getAsync = promisify(client.get).bind(client);
+const bgsaveAsync = promisify(client.bgsave).bind(client);
+
 const idGenerator = (length: Number): String => {
   let result = "";
   const characters =
@@ -97,3 +99,8 @@ app.post("/addUrl", async (req, res) => {
 app.listen(port, () => {
   logger.info(`server started at http://localhost:${port}`);
 });
+
+setInterval(async () => {
+  logger.info(`REDIS: Saving database...`);
+  await bgsaveAsync();
+}, 3000000);
